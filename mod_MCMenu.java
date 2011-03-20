@@ -43,39 +43,62 @@ public class mod_MCMenu extends BaseMod {
 			ArrayList<ChatLine> chatLog = (ArrayList<ChatLine>) ModLoader.getPrivateValue(GuiIngame.class, game.ingameGUI, "e"); // 'chatMessageList' obf to 'e'
 			
 			// Chats are stored in reverse order
-			//Collections.reverse(chatLog);
+			Collections.reverse(chatLog);
 			
 			if( chatLog.size() > 0 )
 			{
 					String title = "Test Menu";
 					LinkedList<String> options = new LinkedList<String>();
-					
+					int firstIndex = 0, lastIndex = 0;
 					for(int m = 0; m < chatLog.size(); m++)
 					{
 						ChatLine chat = chatLog.get(m); 
-						if( isDigit(chat.message.charAt(0)) ) // 0,9,8....1 Title
+						// 0,9,8....1 Title
+						if( startsWithDigit(chat.message) )  //1st one
 						{
-							options.add(chat.message);
+							title = chatLog.get(m-1).message; // Title in message before
+							firstIndex = m-1; // also remove title
+							
+							/*
+							// temp
+							options.add(chat.message + "("+chat.message.indexOf("1")+")");
+							m++;
+							//end temp
+							*/
 							for(; m < chatLog.size() && options.size() < 10; m++)
 							{
-								options.add(chatLog.get(m).message);
+								chat = chatLog.get(m);
+								if( startsWithDigit(chat.message) )
+									options.add(chat.message);
+								//else
+								//	break;
 							}
-						}
-						else
-						{
-							if( options.size() > 1 )
-								title = chat.message;
+							//title = chatLog.get(m).message;
+							lastIndex = m - 1;
 							break;
 						}
 							
 					}
-					if( options.size() < 1 ) return;
-					Collections.reverse(options);
+					if( options.size() < 1 )
+					{
+						Collections.reverse(chatLog);
+						return;
+					}
+					
+					for(;lastIndex >= firstIndex; lastIndex--)
+					{
+						chatLog.remove(lastIndex);
+					}
+					Collections.reverse(chatLog);
+					
+					//ModLoader.setPrivateValue(GuiIngame.class, game.ingameGUI, "e", chatLog	); // 'chatMessageList' obf to 'e'
+					//Collections.reverse(options);
 					String[] o = new String[1];
 					o = options.toArray(o);
 					currentmenu = new MCMenuGui(title, o);
 					game.displayGuiScreen(currentmenu);
 			}
+			
 		} catch (IllegalArgumentException e) {
 			String title = "IllegalArgumentException";
 			String[] options = new String[1];
@@ -101,6 +124,24 @@ public class mod_MCMenu extends BaseMod {
 		
 	}
 	
+	// I think UTF encoding is screwing up charAt stuff
+	public boolean startsWithDigit(String s)
+	{
+		return s.matches(".?[0-9].*");
+	}
+	
+	/*public boolean startsWithDigit(String s)
+	{
+		if( isDigit(s.charAt(0)) ) // No colour prefix
+			return true;
+		else if( isDigit(s.charAt(1)) ) // dunno prefix
+			return true;
+		else if( isDigit(s.charAt(2)) ) // dunno prefix
+			return true;
+		else
+			return isDigit(s.charAt(3)); // colour prefix
+		
+	}*/
 	// Helper
 	public boolean isDigit(char c)
 	{
