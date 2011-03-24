@@ -9,14 +9,15 @@ import org.lwjgl.input.Keyboard;
 import net.minecraft.client.Minecraft;
 
 public class mod_MCMenu extends BaseMod {
-	private static MCMenuGui currentmenu;
+	private static GuiScreen currentmenu;
+	private boolean serverNotified;
 	
 	public mod_MCMenu()
 	{
 		ModLoader.SetInGameHook(this,
                 true,
                 true); // every tick NOT frame
-        
+        serverNotified = false;
 		//currentmenu = new MCMenuGui();
 		
 	}
@@ -28,13 +29,10 @@ public class mod_MCMenu extends BaseMod {
 	
 	public void OnTickInGame(Minecraft game)
 	{
-		if( currentmenu != null && !currentmenu.expired)
+		if( !serverNotified && game.isMultiplayerWorld() )
 		{
-			if(Keyboard.isKeyDown(Keyboard.KEY_GRAVE) )
-			{
-				game.displayGuiScreen(currentmenu);
-			}
-			return;
+			game.thePlayer.sendChatMessage("/menu modinstalled");
+			serverNotified = true;
 		}
 		
 		// Check text messages :|
@@ -54,7 +52,7 @@ public class mod_MCMenu extends BaseMod {
 					{
 						ChatLine chat = chatLog.get(m); 
 						// 0,9,8....1 Title
-						if( chat.message.startsWith("##Menu: ") ) // Titile row
+						if( chat.message.startsWith("##Menu_") ) // Titile row
 						{
 							title = chat.message.substring(8); // Title in message before
 							firstIndex = m; // also remove title
@@ -75,7 +73,7 @@ public class mod_MCMenu extends BaseMod {
 							}
 							// Check for end to menu.. else 
 							chat = chatLog.get(m);
-							if( options.size() < 1 || !chat.message.startsWith("##EndMenu: ") )
+							if( options.size() < 1 || !chat.message.startsWith("##EndMenu") )
 							{
 								// we havent got it all yet..
 								Collections.reverse(chatLog);
@@ -93,7 +91,7 @@ public class mod_MCMenu extends BaseMod {
 							game.displayGuiScreen(currentmenu);
 							break;
 						}
-						else if( chat.message.startsWith("##Value: ") )
+						else if( chat.message.startsWith("##Value_") )
 						{
 							title = chat.message.substring(9);
 							currentmenu = new MCMenuValueGui(title);
