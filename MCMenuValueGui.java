@@ -2,30 +2,51 @@ package net.minecraft.src;
 
 import org.lwjgl.input.Keyboard;
 
-// Maybe DON't extend GuiChat :(
-public class MCMenuValueGui extends GuiChat {
-	private String title;
-	public boolean expired = false;
-	
-	public MCMenuValueGui(String t)
-	{
-		title = t;
-	}
-	
-	public void drawScreen(int i, int j, float f)
+public class MCMenuValueGui extends GuiScreen {
+    private String title;
+    public boolean expired = false;
+	private String message;
+	private int updateCounter;
+    
+    public MCMenuValueGui(String t)
     {
-		// TODO: draw title in a box above this:
-        drawRect(2, height - 14, width - 2, height - 2, 0x80000000);
-        drawString(fontRenderer, title, 4, height - 12, 0xe0e0e0);
-		// end todo
-        super.drawScreen(i, j, f);
+        title = t;
+		message = "";
+        updateCounter = 0;
+    }
+    
+    public void initGui()
+    {
+        Keyboard.enableRepeatEvents(true);
+    }
+
+    public void onGuiClosed()
+    {
+        Keyboard.enableRepeatEvents(false);
+    }
+    
+	public void updateScreen()
+    {
+        updateCounter++;
     }
 	
-	protected void keyTyped(char c, int i)
+    public void drawScreen(int i, int j, float f)
+    {
+        // draw title
+        drawRect(2, height - 26, width - 2, height - 14, 0x80000000);
+        drawString(fontRenderer, title, 4, height - 24, 0xe0e0e0);
+        // Draw input
+		drawRect(2, height - 14, width - 2, height - 2, 0x80000000);
+        drawString(fontRenderer, (new StringBuilder()).append("> ").append(message).append((updateCounter / 6) % 2 != 0 ? "" : "_").toString(), 4, height - 12, 0xe0e0e0);
+        super.drawScreen(i, j, f);
+        
+    }
+    
+    protected void keyTyped(char c, int i)
     {
         if(i == Keyboard.KEY_RETURN) // steal the enter event
         {
-			String s = message.trim();
+            String s = message.trim();
             if(s.length() > 0)
             {
                 mc.thePlayer.sendChatMessage("/menu " + s);
@@ -33,7 +54,20 @@ public class MCMenuValueGui extends GuiChat {
             mc.displayGuiScreen(null);
             return;
         }
-		else
-			super.keyTyped(c, i);
-	}
+        else if ( i == 0 )
+        {
+            mc.displayGuiScreen(null);
+            return;
+        }
+		else if(i == 14 && message.length() > 0) // delete
+        {
+            message = message.substring(0, message.length() - 1);
+        }
+        else if(i >= Keyboard.KEY_1 && i <= Keyboard.KEY_0 && message.length() < 6) // a valid char, and max 5 numbers
+        {
+        	message += c;
+        }
+        else
+            super.keyTyped(c, i);
+    }
 }

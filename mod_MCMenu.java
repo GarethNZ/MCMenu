@@ -47,14 +47,14 @@ public class mod_MCMenu extends BaseMod {
 			{
 					String title = "Test Menu";
 					LinkedList<String> options = new LinkedList<String>();
-					int firstIndex = 0, lastIndex = 0;
+					int firstIndex = -1, lastIndex = -1;
 					for(int m = 0; m < chatLog.size(); m++)
 					{
 						ChatLine chat = chatLog.get(m); 
 						// 0,9,8....1 Title
 						if( chat.message.startsWith("##Menu_") ) // Titile row
 						{
-							title = chat.message.substring(8); // Title in message before
+							title = chat.message.substring(7); // Title in message before
 							firstIndex = m; // also remove title
 							
 							/*
@@ -89,21 +89,29 @@ public class mod_MCMenu extends BaseMod {
 							o = options.toArray(o);
 							currentmenu = new MCMenuGui(title, o);
 							game.displayGuiScreen(currentmenu);
+							
+							
 							break;
 						}
 						else if( chat.message.startsWith("##Value_") )
 						{
-							title = chat.message.substring(9);
+							firstIndex = m;
+							lastIndex = m;
+							title = chat.message.substring(8);
 							currentmenu = new MCMenuValueGui(title);
 							game.displayGuiScreen(currentmenu);
+							
 						}
 							
 					}
 					
-					for(;lastIndex >= firstIndex; lastIndex--)
-					{
-						chatLog.remove(lastIndex);
-					}
+					if(firstIndex >= 0 )
+						for(;lastIndex >= firstIndex; lastIndex--)
+						{
+							chatLog.remove(lastIndex);
+						}
+							
+							
 					Collections.reverse(chatLog);
 					
 			
