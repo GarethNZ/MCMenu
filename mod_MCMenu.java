@@ -11,6 +11,9 @@ import net.minecraft.client.Minecraft;
 public class mod_MCMenu extends BaseMod {
 	private static GuiScreen currentmenu;
 	private boolean serverNotified;
+	private static KeyBinding quickMenu;
+	/*Menu key index*/
+	private int quickMenuKey = Keyboard.KEY_K;
 	
 	public mod_MCMenu()
 	{
@@ -19,6 +22,9 @@ public class mod_MCMenu extends BaseMod {
                 true); // every tick NOT frame
         serverNotified = false;
 		//currentmenu = new MCMenuGui();
+		//RegisterKey(BaseMod basemod, KeyBinding keybinding, boolean flag)
+		quickMenu = new KeyBinding("Activate Quick menu", 'k');
+		ModLoader.RegisterKey(this, quickMenu, true); // false for non-repeat I think
 		
 	}
 	
@@ -27,14 +33,36 @@ public class mod_MCMenu extends BaseMod {
 		return "0.1a";
 	}
 	
+	@Override
+	public void KeyboardEvent(KeyBinding keybinding)
+    {
+		Minecraft game = ModLoader.getMinecraftInstance();
+       
+		if (game.currentScreen==null && keybinding.keyCode == 'k')
+		{
+			game.thePlayer.sendChatMessage("Pushing "+keybinding.keyDescription+" : "+keybinding.keyCode+" makes me feel funny");
+			game.thePlayer.sendChatMessage("/quick");
+		}
+    }
+	
 	public void OnTickInGame(Minecraft game)
 	{
-		if( !serverNotified && game.isMultiplayerWorld() )
+		if( game.isMultiplayerWorld() )
 		{
-			game.thePlayer.sendChatMessage("/menu modinstalled");
-			serverNotified = true;
+			if( !serverNotified )
+			{
+				game.thePlayer.sendChatMessage("/menu modinstalled");
+				serverNotified = true;
+			}
 		}
+		else 
+			serverNotified = false;
 		
+		if (game.currentScreen==null && Keyboard.isKeyDown(quickMenuKey))
+		{
+			game.thePlayer.sendChatMessage("/quick");
+		}
+				
 		// Check text messages :|
 		try {
 			@SuppressWarnings("unchecked")
@@ -56,7 +84,7 @@ public class mod_MCMenu extends BaseMod {
 						{
 							title = chat.message.substring(7); // Title in message before
 							firstIndex = m; // also remove title
-							
+							m++;
 							/*
 							// temp
 							options.add(chat.message + "("+chat.message.indexOf("1")+")");
@@ -68,8 +96,8 @@ public class mod_MCMenu extends BaseMod {
 								chat = chatLog.get(m);
 								if( startsWithDigit(chat.message) )
 									options.add(chat.message);
-								//else
-								//	break;
+								else
+									break;
 							}
 							// Check for end to menu.. else 
 							chat = chatLog.get(m);
