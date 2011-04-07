@@ -60,7 +60,7 @@ public class mod_MCMenu extends BaseMod {
 		
 		if (game.currentScreen==null && Keyboard.isKeyDown(quickMenuKey))
 		{
-			game.thePlayer.sendChatMessage("/quick");
+			game.thePlayer.sendChatMessage("/qm");
 		}
 				
 		// Check text messages :|
@@ -85,12 +85,6 @@ public class mod_MCMenu extends BaseMod {
 							title = chat.message.substring(7); // Title in message before
 							firstIndex = m; // also remove title
 							m++;
-							/*
-							// temp
-							options.add(chat.message + "("+chat.message.indexOf("1")+")");
-							m++;
-							//end temp
-							*/
 							for(; m < chatLog.size() && options.size() < 10; m++)
 							{
 								chat = chatLog.get(m);
@@ -99,25 +93,21 @@ public class mod_MCMenu extends BaseMod {
 								else
 									break;
 							}
-							// Check for end to menu.. else 
-							chat = chatLog.get(m);
-							if( options.size() < 1 || !chat.message.startsWith("##EndMenu") )
+							
+							if( options.size() < 1 ||  // no options
+								m >= chatLog.size() || // End of messages
+								!chatLog.get(m).message.startsWith("##EndMenu") ) // last option != EndMenu
 							{
 								// we havent got it all yet..
 								Collections.reverse(chatLog);
 								return;
 							}
-								
-							
 							lastIndex = m;
 							
-							//ModLoader.setPrivateValue(GuiIngame.class, game.ingameGUI, "e", chatLog	); // 'chatMessageList' obf to 'e'
-							//Collections.reverse(options);
 							String[] o = new String[1];
 							o = options.toArray(o);
 							currentmenu = new MCMenuGui(title, o);
 							game.displayGuiScreen(currentmenu);
-							
 							
 							break;
 						}
@@ -128,7 +118,7 @@ public class mod_MCMenu extends BaseMod {
 							title = chat.message.substring(8);
 							currentmenu = new MCMenuValueGui(title);
 							game.displayGuiScreen(currentmenu);
-							
+							break;
 						}
 							
 					}
