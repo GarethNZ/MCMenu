@@ -3,17 +3,23 @@ package net.minecraft.src;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Collections;
+import java.util.HashMap;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
 
 public class mod_MCMenu extends BaseMod {
+
 	private static GuiScreen currentmenu;
 	private boolean serverNotified;
-	private static KeyBinding quickMenu;
 	/*Menu key index*/
 	private int quickMenuKey = Keyboard.KEY_K;
+	HashMap<Integer,String> quickKeys;
 	
 	public mod_MCMenu()
 	{
@@ -23,8 +29,75 @@ public class mod_MCMenu extends BaseMod {
         serverNotified = false;
 		//currentmenu = new MCMenuGui();
 		//RegisterKey(BaseMod basemod, KeyBinding keybinding, boolean flag)
-		quickMenu = new KeyBinding("Activate Quick menu", 'k');
-		ModLoader.RegisterKey(this, quickMenu, true); // false for non-repeat I think
+		
+		
+		// TODO: Remove
+		//quickMenu = new KeyBinding("Activate Quick menu", 'k');
+		//ModLoader.RegisterKey(this, quickMenu, true); // false for non-repeat I think
+		
+	}
+
+	private void loadSettings()
+	{
+		Minecraft game = ModLoader.getMinecraftInstance();
+		quickKeys = new HashMap<Integer,String>();
+		
+		/*game.thePlayer.sendChatMessage("Test \"k\" " +Keyboard.getKeyIndex("k") );
+		game.thePlayer.sendChatMessage("Test \"K\" " +Keyboard.getKeyIndex("K") );
+		game.thePlayer.sendChatMessage("Test 'KEY_K' " +Keyboard.getKeyIndex("KEY_K") );
+		game.thePlayer.sendChatMessage("Test 'KEY_k' " +Keyboard.getKeyIndex("KEY_k") );*/
+		
+		
+		File path = Minecraft.getAppDir("minecraft/mods/"+"MCMenu"+"/");
+		if (! path.exists())
+		{
+			path.mkdirs();
+		}
+		File file = new File(path,"guiconfig.properties");
+		Properties p = new Properties();
+		try
+		{
+			p.load(new FileInputStream(file));
+			for( String keyStr : p.stringPropertyNames() )
+			{
+				if( keyStr != null )
+				{
+					keyStr = keyStr.toUpperCase();
+					// String to Key
+					int key;
+					if (keyStr.equals("UNBOUND"))
+						key = Keyboard.KEY_NONE;
+					else
+						key = Keyboard.getKeyIndex(keyStr);
+					
+					if( key == 0 ) continue; // skip
+					
+					// Add command and key to something
+					String command = (String)p.get(keyStr);
+					quickKeys.put(new Integer(key), command);
+					//game.thePlayer.sendChatMessage("Added " + keyStr + ":"+new Integer(key).toString()+" "+command);
+				}
+			}
+			
+		}
+		catch (Exception e) {
+			System.out.println(e);
+			return;
+		}
+		
+		// TEMP
+		// Register ALLLLLL Keys:
+		for(char c = 8; c < 128; c++)
+		{
+			KeyBinding binding = new KeyBinding("Dynamic Bindings", c);
+			ModLoader.RegisterKey(this, binding, false); // false for non-repeat I think
+		}
+		
+		
+		/*for(Integer key : quickKeys.keySet() )
+		{
+			game.thePlayer.sendChatMessage(key.toString() + " monitored");
+		}*/
 		
 	}
 	
@@ -37,11 +110,16 @@ public class mod_MCMenu extends BaseMod {
 	public void KeyboardEvent(KeyBinding keybinding)
     {
 		Minecraft game = ModLoader.getMinecraftInstance();
-       
-		if (game.currentScreen==null && keybinding.keyCode == 'k')
+       // TODO: Workout how to make KeyboardEvent work instead
+		if (game.currentScreen==null )
 		{
-			game.thePlayer.sendChatMessage("Pushing "+keybinding.keyDescription+" : "+keybinding.keyCode+" makes me feel funny");
-			game.thePlayer.sendChatMessage("/quick");
+			for(Integer key : quickKeys.keySet() )
+			{
+				if( Keyboard.isKeyDown(key.intValue()) )
+				{
+					game.thePlayer.sendChatMessage(quickKeys.get(key));
+				}
+			}
 		}
     }
 	
@@ -52,16 +130,16 @@ public class mod_MCMenu extends BaseMod {
 			if( !serverNotified )
 			{
 				game.thePlayer.sendChatMessage("/menu modinstalled");
+				
+				loadSettings();
+				
 				serverNotified = true;
 			}
 		}
 		else 
 			serverNotified = false;
 		
-		if (game.currentScreen==null && Keyboard.isKeyDown(quickMenuKey))
-		{
-			game.thePlayer.sendChatMessage("/qm");
-		}
+		
 				
 		// Check text messages :|
 		try {
