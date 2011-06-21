@@ -46,7 +46,7 @@ public class MCMenuGui extends GuiScreen {
             if(Keyboard.getEventKey() >= Keyboard.KEY_1 && Keyboard.getEventKey() <= Keyboard.KEY_0)
             {
             	int key = Keyboard.getEventKey() - (Keyboard.KEY_1 - 1);
-                System.out.println("Key " +key+ " pushed while in a menu");
+                //System.out.println("Key " +key+ " pushed while in a menu");
                 mc.thePlayer.sendChatMessage("/menu "+key);
                 mc.displayGuiScreen(null);
 				expired = true;

@@ -63,11 +63,11 @@ public class MCMenuValueGui extends GuiScreen {
         {
             message = message.substring(0, message.length() - 1);
         }
-        else if(i >= Keyboard.KEY_1 && i <= Keyboard.KEY_0 && message.length() < 6) // a valid char, and max 5 numbers
+        else // Keep anything else
         {
         	message += c;
         }
-        else
-            super.keyTyped(c, i);
+        //else
+        //    super.keyTyped(c, i);
     }
 }

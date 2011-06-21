@@ -18,7 +18,6 @@ public class mod_MCMenu extends BaseMod {
 	private static GuiScreen currentmenu;
 	private boolean serverNotified;
 	/*Menu key index*/
-	private int quickMenuKey = Keyboard.KEY_K;
 	HashMap<Integer,String> quickKeys;
 	
 	public mod_MCMenu()
@@ -30,23 +29,12 @@ public class mod_MCMenu extends BaseMod {
 		//currentmenu = new MCMenuGui();
 		//RegisterKey(BaseMod basemod, KeyBinding keybinding, boolean flag)
 		
-		
-		// TODO: Remove
-		//quickMenu = new KeyBinding("Activate Quick menu", 'k');
-		//ModLoader.RegisterKey(this, quickMenu, true); // false for non-repeat I think
-		
 	}
 
 	private void loadSettings()
 	{
 		Minecraft game = ModLoader.getMinecraftInstance();
 		quickKeys = new HashMap<Integer,String>();
-		
-		/*game.thePlayer.sendChatMessage("Test \"k\" " +Keyboard.getKeyIndex("k") );
-		game.thePlayer.sendChatMessage("Test \"K\" " +Keyboard.getKeyIndex("K") );
-		game.thePlayer.sendChatMessage("Test 'KEY_K' " +Keyboard.getKeyIndex("KEY_K") );
-		game.thePlayer.sendChatMessage("Test 'KEY_k' " +Keyboard.getKeyIndex("KEY_k") );*/
-		
 		
 		File path = Minecraft.getAppDir("minecraft/mods/"+"MCMenu"+"/");
 		if (! path.exists())
@@ -110,8 +98,7 @@ public class mod_MCMenu extends BaseMod {
 	public void KeyboardEvent(KeyBinding keybinding)
     {
 		Minecraft game = ModLoader.getMinecraftInstance();
-       // TODO: Workout how to make KeyboardEvent work instead
-		if (game.currentScreen==null )
+        if (game.currentScreen==null )
 		{
 			for(Integer key : quickKeys.keySet() )
 			{
@@ -151,7 +138,7 @@ public class mod_MCMenu extends BaseMod {
 			
 			if( chatLog.size() > 0 )
 			{
-					String title = "Test Menu";
+					String title = "Menu";
 					LinkedList<String> options = new LinkedList<String>();
 					int firstIndex = -1, lastIndex = -1;
 					for(int m = 0; m < chatLog.size(); m++)
@@ -244,18 +231,6 @@ public class mod_MCMenu extends BaseMod {
 		return s.matches(".?[0-9].*");
 	}
 	
-	/*public boolean startsWithDigit(String s)
-	{
-		if( isDigit(s.charAt(0)) ) // No colour prefix
-			return true;
-		else if( isDigit(s.charAt(1)) ) // dunno prefix
-			return true;
-		else if( isDigit(s.charAt(2)) ) // dunno prefix
-			return true;
-		else
-			return isDigit(s.charAt(3)); // colour prefix
-		
-	}*/
 	// Helper
 	public boolean isDigit(char c)
 	{
