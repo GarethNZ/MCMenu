@@ -110,7 +110,7 @@ public class mod_MCMenu extends BaseMod {
 		}
     }
 	
-	public void OnTickInGame(Minecraft game)
+	public boolean OnTickInGame(Minecraft game)
 	{
 		if( game.isMultiplayerWorld() )
 		{
@@ -165,7 +165,7 @@ public class mod_MCMenu extends BaseMod {
 							{
 								// we havent got it all yet..
 								Collections.reverse(chatLog);
-								return;
+								return true;
 							}
 							lastIndex = m;
 							
@@ -222,7 +222,7 @@ public class mod_MCMenu extends BaseMod {
 		}
 		
 		
-		
+		return true;
 	}
 	
 	// I think UTF encoding is screwing up charAt stuff
